@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>:: Serpens ::</title>
+</head>
+<body>
+    <div class="pontuar">
+        <h2>Pontuação:</h2>
+        <span class="points"></span>
+    </div>
+    <canvas id="palco" width="512" height="512"></canvas>
+    
+    <script>
+        let palco =  document.getElementById("palco");
+        let render = palco.getContext("2d");
+        let box = 32;
+        let pt = 0;
+        let serpens = [];
+        serpens[0] = { x:8*box, y:8*box }
+        let direction = "right";
+        let food = {x:Math.floor(Math.random()*15+1)*box, y:Math.floor(Math.random()*15+1)*box}
+
+/*--------------------- elementos de desenho ----------------------- */
+        function fundo(){
+            render.fillStyle = "black";
+            render.fillRect(0,0, 16*box,16*box);
+        }
+
+        function createSerpens(){
+            for (i = 0; i < serpens.length; i++) {
+                render.fillStyle = "white";
+                render.fillRect(serpens[i].x,serpens[i].y, box, box);
+                
+            }
+        }
+        
+        function SerpensFood(){
+            render.fillStyle = "red";
+            render.fillRect(food.x, food.y, box, box);
+
+        }
+/*--------------------- elementos de direção ----------------------- */
+        document.addEventListener("keydown", directions)
+
+        function directions(e){
+            if (e.keyCode == 37 && direction != "right") {
+                direction = "left";
+            }
+            if (e.keyCode == 38 && direction != "down") {
+                direction = "up";
+            }
+            if (e.keyCode == 39 && direction != "left") {
+                direction = "right";
+            }
+            if (e.keyCode == 40 && direction != "up") {
+                direction = "down";
+            }
+        }
+
+        function play(){
+            if (serpens[0].x > 15*box && direction == "right") {
+                serpens[0].x = 0;
+            }
+            if (serpens[0].x < 0 && direction == "left") {
+                serpens[0].x = 16*box;
+            }
+            if (serpens[0].y > 15*box && direction == "down") {
+                serpens[0].y = 0;
+            }
+            if (serpens[0].y < 10 && direction == "up") {
+                serpens[0].y = 16*box;
+            }
+
+            /*--------------------- Chocar Serpens ----------------------- */
+
+            for (let index = 1; index < serpens.length; index++) {
+                if (serpens[0].x == serpens[index].x && serpens[0].y == serpens[index].y) {
+                    clearInterval(game);
+                    let msg = confirm("Fim do jogo! Tentar novamente?")
+                    if (msg == true) {
+                        location.reload();
+                    }
+                }
+
+            }
+
+            fundo();
+            createSerpens();
+            SerpensFood();
+
+            let serpensX = serpens[0].x
+            let serpensY = serpens[0].y;
+
+            if(direction == "right") serpensX +=box;
+            if(direction == "left") serpensX -=box;
+            if(direction == "up") serpensY -=box;
+            if(direction == "down") serpensY +=box;
+
+/*--------------------- aumentar Serpens ----------------------- */
+
+            if (serpensX != food.x || serpensY != food.y) {
+                serpens.pop();
+            }else{
+                food.x = Math.floor(Math.random()*15+1)*box, 
+                food.y = Math.floor(Math.random()*15+1)*box
+            }
+            let points = document.getElementById("points");
+            while (food.x < 1 || food.y < 1) {
+                points.innerHTML = pt + 10
+            }
+
+            let headserpens = { x: serpensX, y:serpensY }
+            serpens.unshift(headserpens);
+        }
+
+        let game = setInterval(play, 120)
+    </script>
+</body>
+</html>
